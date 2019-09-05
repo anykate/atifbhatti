@@ -3,16 +3,22 @@ from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.contrib.sessions.models import Session
 
 
 # Create your views here.
 def student_login(request):
+    if request.session.has_key('is_logged'):
+        Session.objects.all().delete()
+        return redirect('studentbook:student_home')
+
     if request.POST:
         username = request.POST['username']
         password = request.POST['password']
 
         student = authenticate(request, username=username, password=password)
         if student:
+            request.session['is_logged'] = True
             messages.success(
                 request, f'User \"{username}\" authenticated successfully!')
             return redirect('studentbook:student_home')
@@ -47,4 +53,6 @@ def register_student(request):
 
 
 def student_home(request):
-    return render(request, 'studentbook/home.html', {})
+    if request.session.has_key('is_logged'):
+        return render(request, 'studentbook/home.html', {})
+    return redirect('studentbook:student_login')
