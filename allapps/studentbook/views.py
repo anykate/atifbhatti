@@ -1,9 +1,22 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.db.models import Q
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
 
 # Create your views here.
 def student_login(request):
+    if request.POST:
+        username = request.POST['username']
+        password = request.POST['password']
+
+        student = authenticate(request, username=username, password=password)
+        if student:
+            messages.success(
+                request, f'User \"{username}\" authenticated successfully!')
+        else:
+            messages.error(request, 'Invalid user credentials!')
     return render(request, 'studentbook/login.html', {})
 
 
@@ -17,9 +30,15 @@ def register_student(request):
         email = request.POST['student_email']
         password = request.POST['student_password']
 
-        obj = User(username=username, email=email, password=password)
-        obj.set_password(password)
-        obj.save()
+        if User.objects.filter(Q(username=username) | Q(email=email)).exists():
+            messages.error(request, 'Username / Email Address must be unique!')
 
-        return render(request, 'studentbook/register_student.html', {})
+        else:
+            obj = User(username=username, email=email, password=password)
+            obj.set_password(password)
+            obj.save()
+
+            messages.success(
+                request, f'User \"{username}\" created successfully!')
+
     return redirect('studentbook:student_login')
