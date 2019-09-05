@@ -15,6 +15,8 @@ def student_login(request):
         if student:
             messages.success(
                 request, f'User \"{username}\" authenticated successfully!')
+            return redirect('studentbook:student_home')
+
         else:
             messages.error(request, 'Invalid user credentials!')
     return render(request, 'studentbook/login.html', {})
@@ -42,3 +44,7 @@ def register_student(request):
                 request, f'User \"{username}\" created successfully!')
 
     return redirect('studentbook:student_login')
+
+
+def student_home(request):
+    return render(request, 'studentbook/home.html', {})
