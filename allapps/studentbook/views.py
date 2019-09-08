@@ -56,3 +56,8 @@ def student_home(request):
     if request.session.has_key('is_logged'):
         return render(request, 'studentbook/home.html', {})
     return redirect('studentbook:student_login')
+
+
+def student_logout(request):
+    Session.objects.all().delete()
+    return redirect('studentbook:student_login')
